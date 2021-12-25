@@ -6,19 +6,21 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - certificates_vol:/etc/letsencrypt/certificates
+      - ./fullchain.pem:/etc/letsencrypt/certificates/fullchain.pem
+      - ./privkey.pem:/etc/letsencrypt/certificates/privkey.pem
+      - ./ssl-dhparams.pem:/etc/letsencrypt/certificates/ssl-dhparams.pem
       - html_vol:/var/www
+  deployer:
+    build: ./deployer
+    ports:
+      - 5000:5000
+    volumes:
+      - html_vol:/html
+      - ./deployer:/app
 volumes:
-  certificates_vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /resume-online/certificates
   html_vol:
     driver: local
     driver_opts:
-      o: bind
+      o: volumes
       type: none
-      device: /resume-online/html
-
+      device: ./html
