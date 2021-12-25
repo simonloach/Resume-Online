@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - certificates_vol:/etc/letsencrypt/certificates
+      - html_vol:/var/www
+volumes:
+  certificates_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /resume-online/certificates
+  html_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /resume-online/html
+
