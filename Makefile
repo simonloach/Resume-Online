@@ -16,5 +16,8 @@ debug:
 deploy:
 	@git fetch origin master
 	@git reset --hard FETCH_HEAD
-	@docker build . -f ./fetcher/Dockerfile
+	@python3 -m venv venv
+	@source ./venv/bin/activate
+	@pip install -r requirements.txt
+	@python3 jinja.py
 	@cp -r html /resume-online/html
