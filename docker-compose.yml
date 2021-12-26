@@ -6,9 +6,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./fullchain.pem:/etc/letsencrypt/certificates/fullchain.pem
-      - ./privkey.pem:/etc/letsencrypt/certificates/privkey.pem
-      - ./ssl-dhparams.pem:/etc/letsencrypt/certificates/ssl-dhparams.pem
+      - ./certificates:/etc/letsencrypt/certificates
       - html_vol:/var/www
   deployer:
     build: ./deployer
@@ -21,6 +19,6 @@ volumes:
   html_vol:
     driver: local
     driver_opts:
-      o: volumes
+      o: bind
       type: none
       device: ./html
