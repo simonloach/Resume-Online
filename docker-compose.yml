@@ -21,4 +21,4 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./html
+      device: /home/spiskorz/GitRepos/test/Resume-Online/html # configure this to match the html folder in our repo

@@ -14,4 +14,4 @@ debug:
 
 .PHONY: deploy
 deploy:
-	@./deploy.sh
+	@curl localhost:5000/deploy
