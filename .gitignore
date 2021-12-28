@@ -1,5 +1,5 @@
 *.pem
 token
-certificates
+certificates/*
 venv
 __pycache__
