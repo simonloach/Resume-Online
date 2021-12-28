@@ -4,7 +4,7 @@ import os
 from jinja2 import Template
 
 def deployer():
-    token = open('token','r').read()
+    token = open('token','r').read().replace('\n','')
     response = requests.get(
         'https://api.github.com/user/repos', 
         headers = {

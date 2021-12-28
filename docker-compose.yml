@@ -8,6 +8,7 @@ services:
     volumes:
       - ./certificates:/etc/letsencrypt/certificates
       - html_vol:/var/www
+    restart: always
   deployer:
     build: ./deployer
     ports:
@@ -15,10 +16,11 @@ services:
     volumes:
       - html_vol:/html
       - ./deployer:/app
+    restart: always
 volumes:
   html_vol:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: /home/spiskorz/GitRepos/test/Resume-Online/html # configure this to match the html folder in our repo
+      device: /home/spiskorz/GitRepos/Resume-Online/html # configure this to match the html folder in our repo
