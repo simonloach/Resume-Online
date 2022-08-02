@@ -1,26 +1,17 @@
-version: "3.9"
+version: '3'
 services:
-  nginx:
-    build: ./nginx
+  webserver:
+    image: nginx:latest
     ports:
       - 80:80
       - 443:443
-    volumes:
-      - ./certificates:/etc/letsencrypt/certificates
-      - html_vol:/var/www
     restart: always
-  deployer:
-    build: ./deployer
-    ports:
-      - 5000:5000
     volumes:
-      - html_vol:/html
-      - ./deployer:/app
-    restart: always
-volumes:
-  html_vol:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/spiskorz/GitRepos/Resume-Online/html # configure this to match the html folder in our repo
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
