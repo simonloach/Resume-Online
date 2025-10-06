@@ -258,10 +258,10 @@
                 {% for service in services %}
                 <div class="col-sm-4">
                     <div class="mh-service-item shadow-1 dark-bg wow fadeInUp" data-wow-duration="0.8s"
-                        data-wow-delay="0.3s">
+                        data-wow-delay="0.3s" style="height: 100%; display: flex; flex-direction: column;">
                         <i class="fa {{ service.icon }} {{ service.color }}"></i>
                         <h3>{{ service.title }}</h3>
-                        <p>{{ service.description }}</p>
+                        <p style="flex-grow: 1;">{{ service.description }}</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -1359,17 +1359,19 @@
                         {% for project in projects[:6] %}
                         <div class="col-sm-12 col-md-6 col-lg-4">
                             <div class="project-card dark-bg shadow-1 wow fadeInUp" data-wow-duration="0.8s" data-wow-delay="{{ 0.2 + loop.index * 0.1 }}s">
-                                <div class="project-header">
-                                    <i class="fa fa-github" style="font-size: 2em; color: #4ecdc4; margin-bottom: 15px;"></i>
-                                    <h3><a href="{{ project.url }}" target="_blank" style="color: #fff; text-decoration: none;">{{ project.name }}</a></h3>
+                                <div class="project-content" style="flex-grow: 1;">
+                                    <div class="project-header">
+                                        <i class="fa fa-github" style="font-size: 2em; color: #4ecdc4; margin-bottom: 15px;"></i>
+                                        <h3><a href="{{ project.url }}" target="_blank" style="color: #fff; text-decoration: none;">{{ project.name }}</a></h3>
+                                    </div>
+                                    <p style="color: #bdc3c7; min-height: 80px; margin: 15px 0;">{{ project.description }}</p>
+                                    <div class="project-topics" style="margin: 15px 0;">
+                                        {% for topic in project.topics[:4] %}
+                                        <span style="display: inline-block; padding: 4px 12px; margin: 4px; background: rgba(78, 205, 196, 0.2); border: 1px solid rgba(78, 205, 196, 0.4); border-radius: 15px; font-size: 0.85em; color: #4ecdc4;">{{ topic }}</span>
+                                        {% endfor %}
+                                    </div>
                                 </div>
-                                <p style="color: #bdc3c7; min-height: 80px; margin: 15px 0;">{{ project.description }}</p>
-                                <div class="project-topics" style="margin: 15px 0;">
-                                    {% for topic in project.topics[:4] %}
-                                    <span style="display: inline-block; padding: 4px 12px; margin: 4px; background: rgba(78, 205, 196, 0.2); border: 1px solid rgba(78, 205, 196, 0.4); border-radius: 15px; font-size: 0.85em; color: #4ecdc4;">{{ topic }}</span>
-                                    {% endfor %}
-                                </div>
-                                <a href="{{ project.url }}" target="_blank" class="btn btn-fill" style="margin-top: 10px; font-size: 0.9em; padding: 8px 20px;">View on GitHub <i class="fa fa-external-link"></i></a>
+                                <a href="{{ project.url }}" target="_blank" class="btn btn-fill" style="margin-top: auto; font-size: 0.9em; padding: 8px 20px;">View on GitHub <i class="fa fa-external-link"></i></a>
                             </div>
                         </div>
                         {% endfor %}
@@ -1394,12 +1396,17 @@
             background: rgba(44, 62, 80, 0.95);
             border-radius: 15px;
             padding: 30px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
             height: 100%;
             display: flex;
             flex-direction: column;
+        }
+        
+        /* Additional spacing for project columns */
+        #github-projects .col-sm-12.col-md-6.col-lg-4 {
+            margin-bottom: 20px;
         }
         
         .project-card:hover {

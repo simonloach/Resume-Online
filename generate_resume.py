@@ -86,13 +86,18 @@ def fetch_github_projects(username: str, token: Optional[str] = None) -> List[Di
         # Filter and format repositories
         projects = []
         for repo in repos:
-            # Skip forks and archived repos, prioritize repos with descriptions and stars
+            # Skip forks, archived repos, and repos without substantial descriptions
             if repo.get("fork", False) or repo.get("archived", False):
+                continue
+            
+            description = repo.get("description", "")
+            # Only include projects with descriptions longer than 50 characters
+            if not description or len(description.strip()) <= 50:
                 continue
                 
             project = {
-                "name": repo["name"],
-                "description": repo.get("description", "No description available"),
+                "name": repo["name"].lower(),  # Convert name to lowercase
+                "description": description,
                 "url": repo["html_url"],
                 "stars": repo.get("stargazers_count", 0),
                 "language": repo.get("language", "Unknown"),
@@ -101,11 +106,27 @@ def fetch_github_projects(username: str, token: Optional[str] = None) -> List[Di
             }
             projects.append(project)
         
-        # Sort by stars and recent activity
-        projects.sort(key=lambda x: (x["stars"], x["updated_at"]), reverse=True)
+        # Prioritize favorite projects
+        priority_projects = []
+        other_projects = []
+        favorite_names = ["car-scraper", "resume-online"]
         
-        print(f"✅ Fetched {len(projects)} GitHub projects for {username}")
-        return projects[:8]  # Return top 8 projects
+        for project in projects:
+            if project["name"] in favorite_names:
+                priority_projects.append(project)
+            else:
+                other_projects.append(project)
+        
+        # Sort priority projects by favorite order, then other projects by stars/activity
+        priority_projects.sort(key=lambda x: favorite_names.index(x["name"]))
+        other_projects.sort(key=lambda x: (x["stars"], x["updated_at"]), reverse=True)
+        
+        # Combine with favorites first, then fill with others
+        final_projects = priority_projects + other_projects
+        
+        print(f"✅ Fetched {len(final_projects)} GitHub projects for {username}")
+        print(f"📌 Prioritized projects: {[p['name'] for p in priority_projects]}")
+        return final_projects[:8]  # Return top 8 projects
         
     except requests.RequestException as e:
         print(f"⚠️  Failed to fetch GitHub projects: {e}")
