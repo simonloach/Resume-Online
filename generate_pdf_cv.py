@@ -9,6 +9,7 @@ from jinja2 import Template
 from weasyprint import HTML
 import os
 from typing import Dict, Any
+from generate_resume import fetch_github_projects
 
 TEMPLATE = r"""
 <!doctype html>
@@ -85,6 +86,27 @@ TEMPLATE = r"""
     {% endfor %}
   </div>
 
+  {% if projects and projects|length > 0 %}
+  <div class="section">
+    <div class="section-title">Featured Projects</div>
+    {% for project in projects[:4] %}
+      <div class="job">
+        <div class="job-title">{{ project.name|title }}</div>
+        <div class="company">{{ project.language }} | ⭐ {{ project.stars }} stars</div>
+        <div class="meta">{{ project.url }}</div>
+        <div style="margin-top: 4px;">{{ project.description }}</div>
+        {% if project.topics %}
+        <div style="margin-top: 6px;">
+          {% for topic in project.topics[:5] %}
+            <span class="learning-tag">{{ topic }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
 </body>
 </html>
 """
@@ -107,6 +129,20 @@ def write_pdf(html_str: str, out_path: str = 'html/cv.pdf') -> None:
 
 def main():
     data = load_data()
+    
+    # Fetch GitHub projects if GitHub URL is provided
+    github_url = data.get("personal_info", {}).get("social", {}).get("github")
+    if github_url and (not data.get("projects") or len(data.get("projects", [])) == 0):
+        print("🔍 Fetching GitHub projects for PDF...")
+        github_token = os.environ.get("GITHUB_TOKEN")  # Optional token for higher rate limits
+        projects = fetch_github_projects(github_url, github_token)
+        data["projects"] = projects
+        
+        if projects:
+            print(f"📦 Added {len(projects)} GitHub projects to PDF")
+        else:
+            print("⚠️  No GitHub projects found for PDF")
+    
     html = generate_html(data)
     write_pdf(html)
     print('✅ PDF generated at html/cv.pdf')
