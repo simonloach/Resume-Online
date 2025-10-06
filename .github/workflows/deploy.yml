@@ -1,5 +1,4 @@
 name: Build and deploy resume
-name: Build and deploy resume
 
 on:
   push:
@@ -72,23 +71,3 @@ jobs:
           BUCKET: simon-resume-bucket
         run: |
           aws s3 sync html/ s3://$BUCKET --delete --cache-control "public, max-age=3600"
-
-      - name: Optional CloudFront invalidation
-        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-
-# Repo secrets required:
-# - AWS_ROLE_TO_ASSUME: the ARN of the IAM Role GitHub will assume via OIDC
-# - AWS_REGION: e.g. us-east-1
-# Optional:
-# - CLOUDFRONT_DISTRIBUTION_ID: for invalidations
-          run: |
-            aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-
-  # Repo secrets required:
-  # - AWS_ROLE_TO_ASSUME: the ARN of the IAM Role GitHub will assume via OIDC
-  # - AWS_REGION: e.g. us-east-1
-  # Optional:
-  # - CLOUDFRONT_DISTRIBUTION_ID: for invalidations
-  push:
