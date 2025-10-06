@@ -39,31 +39,9 @@ jobs:
         run: |
           uv python install 3.11 || true
 
-      - name: Debug working directory and files
-        run: |
-          echo "Current working directory: $(pwd)"
-          echo "Files in current directory:"
-          ls -la
-          echo "Python files:"
-          ls -la *.py || echo "No Python files found"
-          echo "UV version and info:"
-          uv --version
-          which uv
-
       - name: Sync project dependencies (uv)
         run: |
-          uv sync || {
-            echo "UV sync failed, installing with pip..."
-            python3 -m pip install --upgrade pip
-            python3 -m pip install jinja2 pyyaml requests weasyprint
-          }
-
-      - name: Debug UV environment
-        run: |
-          echo "UV project info:"
-          uv project info || echo "No project info available"
-          echo "Checking if scripts exist:"
-          ls -la generate_resume.py generate_pdf_cv.py || echo "Scripts not found"
+          uv sync
 
       - name: Generate HTML (uv)
         run: |
