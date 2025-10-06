@@ -44,6 +44,8 @@ jobs:
           uv sync
 
       - name: Generate HTML (uv)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           uv run python generate_resume.py || {
             echo "UV run failed, trying direct execution..."

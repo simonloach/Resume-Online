@@ -5,9 +5,10 @@ Clean HTML resume generator that reads `resume_data.yaml` and writes `html/index
 Uses external Jinja template from assets/templates/ if available, otherwise fallback template.
 """
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 import yaml
+import requests
 from jinja2 import Template
 
 # Fallback template if external template not found
@@ -63,6 +64,57 @@ FALLBACK_TEMPLATE = r"""
 """
 
 
+def fetch_github_projects(username: str, token: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Fetch public repositories from GitHub API."""
+    try:
+        # Extract username from GitHub URL if needed
+        if username.startswith("https://github.com/"):
+            username = username.replace("https://github.com/", "").rstrip("/")
+        
+        url = f"https://api.github.com/users/{username}/repos"
+        headers = {"Accept": "application/vnd.github+json"}
+        
+        # Add token if provided (for higher rate limits and private repos)
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        
+        repos = response.json()
+        
+        # Filter and format repositories
+        projects = []
+        for repo in repos:
+            # Skip forks and archived repos, prioritize repos with descriptions and stars
+            if repo.get("fork", False) or repo.get("archived", False):
+                continue
+                
+            project = {
+                "name": repo["name"],
+                "description": repo.get("description", "No description available"),
+                "url": repo["html_url"],
+                "stars": repo.get("stargazers_count", 0),
+                "language": repo.get("language", "Unknown"),
+                "updated_at": repo.get("updated_at", ""),
+                "topics": repo.get("topics", [])
+            }
+            projects.append(project)
+        
+        # Sort by stars and recent activity
+        projects.sort(key=lambda x: (x["stars"], x["updated_at"]), reverse=True)
+        
+        print(f"✅ Fetched {len(projects)} GitHub projects for {username}")
+        return projects[:8]  # Return top 8 projects
+        
+    except requests.RequestException as e:
+        print(f"⚠️  Failed to fetch GitHub projects: {e}")
+        return []
+    except Exception as e:
+        print(f"⚠️  Error processing GitHub projects: {e}")
+        return []
+
+
 def load_data(path: str = "resume_data.yaml") -> Dict[str, Any]:
     """Load resume data from YAML file."""
     with open(path, "r", encoding="utf-8") as f:
@@ -95,6 +147,20 @@ def write_html(html: str, out_path: str = "html/index.html") -> None:
 def main() -> None:
     """Main function."""
     data = load_data()
+    
+    # Fetch GitHub projects if GitHub URL is provided
+    github_url = data.get("personal_info", {}).get("social", {}).get("github")
+    if github_url and (not data.get("projects") or len(data.get("projects", [])) == 0):
+        print("🔍 Fetching GitHub projects...")
+        github_token = os.environ.get("GITHUB_TOKEN")  # Optional token for higher rate limits
+        projects = fetch_github_projects(github_url, github_token)
+        data["projects"] = projects
+        
+        if projects:
+            print(f"📦 Added {len(projects)} GitHub projects to resume")
+        else:
+            print("⚠️  No GitHub projects found or API request failed")
+    
     html = render_html(data)
     write_html(html)
     print("✅ index.html generated at html/index.html")
